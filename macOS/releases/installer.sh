@@ -29,6 +29,10 @@ if ! curl -L -o "$ZIP_FILE" "$ZIP_URL"; then
     exit 1
 fi
 
+# Remove any previous __MACOSX or conflicting files before extraction
+echo "Cleaning up any conflicting files..."
+rm -rf "$TEMP_DIR/__MACOSX" "$TEMP_DIR/bloxyspin.app"
+
 # Extract BloxySpin
 echo "Extracting BloxySpin..."
 if ! unzip -q "$ZIP_FILE" -d "$TEMP_DIR"; then
@@ -36,9 +40,9 @@ if ! unzip -q "$ZIP_FILE" -d "$TEMP_DIR"; then
     exit 1
 fi
 
-# Remove unwanted __MACOSX directories or extended attributes that might cause issues
-echo "Cleaning up macOS-specific files..."
-rm -rf "$TEMP_DIR/__MACOSX"
+# Remove unwanted extended attributes (._ files) after extraction
+echo "Cleaning up macOS-specific extended attributes..."
+find "$TEMP_DIR" -name '._*' -exec rm -f {} \;
 
 # Move app to Applications directory, requesting admin permissions if necessary
 echo "Installing BloxySpin..."
