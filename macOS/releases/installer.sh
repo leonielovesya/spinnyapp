@@ -36,6 +36,10 @@ if ! unzip -q "$ZIP_FILE" -d "$TEMP_DIR"; then
     exit 1
 fi
 
+# Remove unwanted __MACOSX directories or extended attributes that might cause issues
+echo "Cleaning up macOS-specific files..."
+rm -rf "$TEMP_DIR/__MACOSX"
+
 # Move app to Applications directory, requesting admin permissions if necessary
 echo "Installing BloxySpin..."
 if ! mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"; then
@@ -67,4 +71,3 @@ fi
 echo "-----------------------"
 echo "The whole BloxySpin team wishes you luck on your bets!"
 echo "Managed and developed by app.bloxyspin.com"
-
