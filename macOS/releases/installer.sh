@@ -35,11 +35,12 @@ echo "Configuring app permissions..."
 sudo xattr -d com.apple.quarantine "$APP_PATH"
 sudo spctl --add --label "allow" "$APP_PATH"
 
+echo "Cleaning up ..."
+rm -rf "$TEMP_DIR"
+
 echo "Launching BloxySpin..."
 open "$APP_PATH"
 
-echo "Cleaning up ..."
-rm -rf "$TEMP_DIR"
 
 echo "-----------------------"
 echo "The whole BloxySpin team wishes you luck on your bets!"
