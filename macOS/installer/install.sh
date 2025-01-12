@@ -1,8 +1,10 @@
-#!/bin/bash
-
-# Ensure the script is being run on macOS
+#########################################################################################################
+#                                    The bloxyspin installer @ macOS v0.0.1!                            #
+#                                                                                                       #
+#                                    This content belongs to app.bloxyspin.com                          #
+#########################################################################################################
 if [[ "$(uname)" != "Darwin" ]]; then
-    echo "This script is for macOS only. Detected OS: $(uname)"
+    echo "This script is for macOS only. your OS: $(uname)"
     exit 1
 fi
 
@@ -13,34 +15,26 @@ ZIP_FILE="$TEMP_DIR/bloxyspin.zip"
 APP_DIR="/Applications"
 APP_PATH="$APP_DIR/bloxyspin.app"
 
-# Create a temporary directory
 mkdir -p "$TEMP_DIR"
 
 echo "Hey, I'm Spinny - I will help you with the download."
 echo "Please wait while I'm installing BloxySpin..."
 
-# Download the ZIP file
-echo "Downloading BloxySpin ZIP..."
+echo "Downloading BloxySpin..."
 curl -L -o "$ZIP_FILE" "$ZIP_URL"
 
-# Unzip the downloaded file
 echo "Extracting BloxySpin..."
 unzip -q "$ZIP_FILE" -d "$TEMP_DIR"
 
-# Move the app to the Applications folder
-echo "Installing BloxySpin to $APP_DIR..."
 mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"
 
-# Clean up temporary files
-echo "Cleaning up temporary files..."
+echo "Cleaning up ..."
 rm -rf "$TEMP_DIR"
 
-# Set proper permissions to run the app
 echo "Configuring app permissions..."
 sudo xattr -d com.apple.quarantine "$APP_PATH"
 sudo spctl --add --label "allow" "$APP_PATH"
 
-# Open the app
 echo "Launching BloxySpin..."
 open "$APP_PATH"
 
