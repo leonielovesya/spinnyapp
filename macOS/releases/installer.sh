@@ -4,6 +4,7 @@
 #                                    This content belongs to app.bloxyspin.com                         #
 #########################################################################################################
 
+# Check macOS
 if [[ "$(uname)" != "Darwin" ]]; then
     echo "This script is for macOS only. Your OS: $(uname)"
     exit 1
@@ -18,59 +19,62 @@ APP_PATH="$APP_DIR/bloxyspin.app"
 
 # Prepare temp directory
 mkdir -p "$TEMP_DIR"
-
-echo "Hey, I'm Spinny - I will help you with the download."
-echo "Please wait while I'm installing BloxySpin..."
+echo "Temp directory created at: $TEMP_DIR"
 
 # Download BloxySpin
-echo "Downloading BloxySpin..."
-if ! curl -L -o "$ZIP_FILE" "$ZIP_URL"; then
-    echo "Failed to download BloxySpin. Please check the URL or your internet connection."
+echo "Downloading BloxySpin from $ZIP_URL..."
+curl -L -o "$ZIP_FILE" "$ZIP_URL" || { echo "Failed to download BloxySpin. Please check your internet connection."; exit 1; }
+
+# Check if ZIP file exists
+if [[ ! -f "$ZIP_FILE" ]]; then
+    echo "ZIP file not found. Please check the download URL."
     exit 1
 fi
 
-# Remove any previous __MACOSX or conflicting files before extraction
-echo "Cleaning up any conflicting files..."
+echo "ZIP file downloaded successfully."
+
+# Remove any previous conflicting files
+echo "Cleaning up previous installations and hidden files..."
 rm -rf "$TEMP_DIR/__MACOSX" "$TEMP_DIR/bloxyspin.app"
-
-# Extract BloxySpin
-echo "Extracting BloxySpin..."
-if ! unzip -q "$ZIP_FILE" -d "$TEMP_DIR"; then
-    echo "Failed to extract BloxySpin. Please check the ZIP file."
-    exit 1
-fi
-
-# Remove unwanted extended attributes (._ files) after extraction
-echo "Cleaning up macOS-specific extended attributes..."
 find "$TEMP_DIR" -name '._*' -exec rm -f {} \;
 
+# Extract BloxySpin
+echo "Extracting BloxySpin from $ZIP_FILE..."
+unzip -q "$ZIP_FILE" -d "$TEMP_DIR" || { echo "Failed to extract BloxySpin. Please check the ZIP file."; exit 1; }
+
+echo "Extraction successful."
+
 # Move app to Applications directory, requesting admin permissions if necessary
-echo "Installing BloxySpin..."
+echo "Moving BloxySpin to $APP_DIR..."
 if ! mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"; then
-    echo "Moving the app requires administrative permissions."
-    if ! sudo mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"; then
-        echo "Failed to move the app to $APP_DIR even with administrative permissions."
-        exit 1
-    fi
+    echo "Error moving the app. Requesting admin permissions."
+    sudo mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH" || { echo "Failed to move the app to $APP_DIR even with admin permissions."; exit 1; }
 fi
+
+echo "App successfully moved to Applications."
 
 # Configure app permissions
 echo "Configuring app permissions..."
-if ! sudo xattr -d com.apple.quarantine "$APP_PATH" || ! sudo spctl --add --label "allow" "$APP_PATH"; then
-    echo "Failed to configure app permissions. Please try again."
+if ! sudo xattr -d com.apple.quarantine "$APP_PATH"; then
+    echo "Failed to remove quarantine attribute from $APP_PATH."
     exit 1
 fi
 
+if ! sudo spctl --add --label "allow" "$APP_PATH"; then
+    echo "Failed to add security exception for $APP_PATH."
+    exit 1
+fi
+
+echo "Permissions successfully configured."
+
 # Clean up
-echo "Cleaning up..."
+echo "Cleaning up temporary files..."
 rm -rf "$TEMP_DIR"
+echo "Temporary files cleaned."
 
 # Launch the app
 echo "Launching BloxySpin..."
-if ! open "$APP_PATH"; then
-    echo "Failed to launch BloxySpin. Please try opening it manually from $APP_DIR."
-    exit 1
-fi
+open "$APP_PATH" || { echo "Failed to launch BloxySpin. Please try opening it manually from $APP_DIR."; exit 1; }
 
 echo "-----------------------"
 echo "The whole BloxySpin team wishes you luck on your bets!"
