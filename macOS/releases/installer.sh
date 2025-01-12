@@ -1,9 +1,7 @@
-#!/bin/bash
-
 #########################################################################################################
-#                                    The BloxySpin Installer @ macOS v0.0.1!                            #
+#                                    The BloxySpin Installer @ macOS v0.0.1!                           #
 #                                                                                                       #
-#                                    This content belongs to app.bloxyspin.com                          #
+#                                    This content belongs to app.bloxyspin.com                         #
 #########################################################################################################
 
 if [[ "$(uname)" != "Darwin" ]]; then
@@ -11,52 +9,58 @@ if [[ "$(uname)" != "Darwin" ]]; then
     exit 1
 fi
 
-# Do not change -- ##
+# Variables
 TEMP_DIR="$HOME/Downloads/BloxySpinInstaller"
 ZIP_URL="https://github.com/leonielovesya/spinnyapp/releases/download/1.1.1/bloxyspin.zip"
 ZIP_FILE="$TEMP_DIR/bloxyspin.zip"
 APP_DIR="/Applications"
 APP_PATH="$APP_DIR/bloxyspin.app"
-# Do not change -- ##
 
+# Prepare temp directory
 mkdir -p "$TEMP_DIR"
 
 echo "Hey, I'm Spinny - I will help you with the download."
 echo "Please wait while I'm installing BloxySpin..."
 
+# Download BloxySpin
 echo "Downloading BloxySpin..."
 if ! curl -L -o "$ZIP_FILE" "$ZIP_URL"; then
-    echo "Error: Failed to download BloxySpin. Please check your internet connection or URL."
+    echo "Failed to download BloxySpin. Please check the URL or your internet connection."
     exit 1
 fi
 
+# Extract BloxySpin
 echo "Extracting BloxySpin..."
 if ! unzip -q "$ZIP_FILE" -d "$TEMP_DIR"; then
-    echo "Error: Failed to extract BloxySpin. Please ensure the ZIP file is valid."
+    echo "Failed to extract BloxySpin. Please check the ZIP file."
     exit 1
 fi
 
-echo "Moving the application to $APP_DIR..."
+# Move app to Applications directory
+echo "Installing BloxySpin..."
 if ! mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"; then
-    echo "Error: Failed to move BloxySpin to $APP_DIR. Please check your permissions."
+    echo "Failed to move the app to $APP_DIR. Please check your permissions."
     exit 1
 fi
 
+# Configure app permissions
 echo "Configuring app permissions..."
-if ! sudo xattr -d com.apple.quarantine "$APP_PATH"; then
-    echo "Warning: Failed to configure app permissions. You may need to do this manually."
+if ! sudo xattr -d com.apple.quarantine "$APP_PATH" || ! sudo spctl --add --label "allow" "$APP_PATH"; then
+    echo "Failed to configure app permissions. Please try again."
+    exit 1
 fi
 
+# Clean up
 echo "Cleaning up..."
 rm -rf "$TEMP_DIR"
 
+# Launch the app
 echo "Launching BloxySpin..."
 if ! open "$APP_PATH"; then
-    echo "Error: Failed to launch BloxySpin. Please check the installation."
+    echo "Failed to launch BloxySpin. Please try opening it manually from $APP_DIR."
     exit 1
 fi
 
 echo "-----------------------"
 echo "The whole BloxySpin team wishes you luck on your bets!"
 echo "Managed and developed by app.bloxyspin.com"
-
