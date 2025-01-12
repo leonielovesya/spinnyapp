@@ -36,11 +36,14 @@ if ! unzip -q "$ZIP_FILE" -d "$TEMP_DIR"; then
     exit 1
 fi
 
-# Move app to Applications directory
+# Move app to Applications directory, requesting admin permissions if necessary
 echo "Installing BloxySpin..."
 if ! mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"; then
-    echo "Failed to move the app to $APP_DIR. Please check your permissions."
-    exit 1
+    echo "Moving the app requires administrative permissions."
+    if ! sudo mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"; then
+        echo "Failed to move the app to $APP_DIR even with administrative permissions."
+        exit 1
+    fi
 fi
 
 # Configure app permissions
@@ -64,3 +67,4 @@ fi
 echo "-----------------------"
 echo "The whole BloxySpin team wishes you luck on your bets!"
 echo "Managed and developed by app.bloxyspin.com"
+
