@@ -29,18 +29,13 @@ fi
 
 echo "ZIP file downloaded successfully."
 
-echo "Extracting BloxySpin from $ZIP_FILE..."
-unzip -q "$ZIP_FILE" -d "$TEMP_DIR" || { echo "Failed to extract BloxySpin. Please check the ZIP file."; exit 1; }
-
-echo "Extraction successful."
-
 echo "Moving BloxySpin to $APP_DIR..."
-if ! mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH"; then
-    echo "Error moving the app. Requesting admin permissions."
-    sudo mv -f "$TEMP_DIR/bloxyspin.app" "$APP_PATH" || { echo "Failed to move the app to $APP_DIR even with admin permissions."; exit 1; }
+if ! mv -f "$ZIP_FILE" "$APP_DIR"; then
+    echo "Error moving the ZIP file. Requesting admin permissions."
+    sudo mv -f "$ZIP_FILE" "$APP_DIR" || { echo "Failed to move the ZIP file to $APP_DIR even with admin permissions."; exit 1; }
 fi
 
-echo "App successfully moved to Applications."
+echo "ZIP file successfully moved to Applications."
 
 echo "Configuring app permissions..."
 if ! sudo xattr -d com.apple.quarantine "$APP_PATH"; then
