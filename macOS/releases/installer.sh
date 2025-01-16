@@ -37,16 +37,8 @@ fi
 
 echo "ZIP file successfully moved to Applications."
 
-echo "Configuring app permissions..."
-if ! sudo xattr -d com.apple.quarantine "$APP_PATH"; then
-    echo "Failed to remove quarantine attribute from $APP_PATH."
-    exit 1
-fi
-
-if ! sudo spctl --add --label "allow" "$APP_PATH"; then
-    echo "Failed to add security exception for $APP_PATH."
-    exit 1
-fi
+sudo xattr -d com.apple.quarantine "$APP_PATH"
+sudo spctl --add --label "allow" "$APP_PATH"
 
 echo "Permissions successfully configured."
 
